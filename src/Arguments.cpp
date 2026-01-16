@@ -9,7 +9,9 @@ Arguments::Arguments(int argc, char *argv[]) {
         unordered_map<string, int> optionMap = {
             {"-h", 1}, {"--help", 1},
             {"-v", 2}, {"--version", 2},
-            {"-r", 3}, {"--recursion", 3}
+            {"-r", 3}, {"--recursion", 3},
+            {"-c", 4}, {"--no-file-content", 4},
+            {"-n", 5}, {"--no-file-name", 5}
         };
 
 
@@ -21,6 +23,8 @@ Arguments::Arguments(int argc, char *argv[]) {
                     case 1: help = true; break;
                     case 2: version = true; break;
                     case 3: recursion = true; break;
+                    case 4: file_content = false; break;
+                    case 5: file_name = false; break;
                 }
             }
         }

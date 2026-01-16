@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 26)
 
 add_executable(garbanzo main.cpp
         src/Arguments.cpp
-        include/Arguments.h)
+        include/Arguments.h
+        src/File.cpp
+        include/File.h)

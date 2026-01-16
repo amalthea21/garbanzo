@@ -5,13 +5,12 @@
 #include <string>
 
 #include "include/Arguments.h"
+#include "include/File.h"
 
 using namespace std;
 
-/**
- * Return values Directory, Search (if found)
- * @return
- */
+/** @return Input search, dir from argv
+*/
 tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
     string search = "", dir;
 
@@ -35,13 +34,16 @@ tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
 }
 
 void printHelp() {
-    cout << "Usage: @[SEARCH] [DIRECTORY] [OPTIONS] (Not in a specific order!)"
+    cout << "Usage: @[SEARCH] [DIRECTORY, FILE] [OPTIONS] (Not in a specific order!)"
             "\n   or: [-h, --help]"
             "\nSearch for a string within files in a directory"
             "\n"
             "\nArguments:"
-            "\n-h      --help          Display help message (this!)"
-            "\n-h      --recursion     Search recursively through subdirectories"
+            "\n-h      --help               Display help message (this!)"
+            "\n-v      --version            Display version message"
+            "\n-h      --recursion          Search recursively through subdirectories"
+            "\n-c      --no-file-content    Doesn't read file content"
+            "\n-n      --no-file-name       Doesn't read file names"
             "\n"
             "\nExample Usage: ./garbanzo @ninja /../Testing/ --recursion"
             "\n               ./garbanzo --help"
@@ -50,7 +52,8 @@ void printHelp() {
 }
 
 void printVersion() {
-    cout << "Garbanzo 0.1" << endl;
+    cout << "Garbanzo 0.1"
+    << endl;
 }
 
 /**
@@ -79,8 +82,10 @@ int main(int argc, char* argv[]) {
 
     int amount = workArguments(arguments, search, dir);
 
-    cout << "Search: " << search.value_or("(none)") << endl;
-    cout << "Directory: " << dir.value_or("(none)") << endl;
+    File testFile("../Testing/ninja.txt", arguments);
 
-    cout << "Amount: " << amount << endl;
+    cout << testFile.readFileName("ninja") << endl;
+    cout << testFile.readFileContent("ninja") << endl;
+
+    exit(amount);
 }
