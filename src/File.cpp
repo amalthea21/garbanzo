@@ -30,6 +30,8 @@ int File::readFileName(string search) {
         if (search == curName.substr(i, search.length()))
             amount++;
     }
+
+    return amount;
 }
 
 int File::readFileContent(string search) {
@@ -43,4 +45,6 @@ int File::readFileContent(string search) {
         if (search == curContent.substr(i, search.length()))
             amount++;
     }
+
+    return amount;
 }
