@@ -2,11 +2,19 @@
 
 File::File(string path, Arguments arguments) {
     if (arguments.file_name) {
-
+        name = filesystem::path(path).filename().string();
     }
 
     if (arguments.file_content) {
-
+        ifstream file(path);
+        if (file) {
+            string line;
+            string fullContent;
+            while (getline(file, line)) {
+                fullContent += line + "\n";
+            }
+            content = fullContent;
+        }
     }
 }
 
