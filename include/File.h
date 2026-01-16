@@ -17,6 +17,6 @@ public:
 
     File(string path, Arguments arguments);
 
-    int readFileName(string search);
-    int readFileContent(string search);
+    int readFileName(string search, Arguments arguments);
+    int readFileContent(string search, Arguments arguments);
 };

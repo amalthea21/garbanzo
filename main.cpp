@@ -17,7 +17,7 @@ tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         switch (argv[i][0]) {
             case '@': // search input
-                for (int j = 1; argv[i][j] != '\0'; j++) { // Start at j=1 for "
+                for (int j = 1; argv[i][j] != '\0'; j++) { // Start at j=1 for @
                     search += argv[i][j];
                 }
                 break;
@@ -84,8 +84,12 @@ int main(int argc, char* argv[]) {
 
     File testFile("../Testing/ninja.txt", arguments);
 
-    cout << testFile.readFileName("ninja") << endl;
-    cout << testFile.readFileContent("ninja") << endl;
+    if (search.has_value()) {
+        amount += testFile.readFileContent(search.value(), arguments);
+        amount += testFile.readFileName(search.value(), arguments);
+    }
+
+    cout << "Amount: " << amount << endl;
 
     exit(amount);
 }

@@ -18,8 +18,8 @@ File::File(string path, Arguments arguments) {
     }
 }
 
-int File::readFileName(string search) {
-    if (!name.has_value())
+int File::readFileName(string search, Arguments arguments) {
+    if (!name.has_value() || !arguments.file_name)
         return 0;
 
     int amount = 0;
@@ -34,8 +34,8 @@ int File::readFileName(string search) {
     return amount;
 }
 
-int File::readFileContent(string search) {
-    if (!content.has_value())
+int File::readFileContent(string search, Arguments arguments) {
+    if (!content.has_value() || !arguments.file_content)
         return 0;
 
     int amount = 0;
