@@ -1,18 +1,20 @@
 #include "../include/File.h"
 
+#include <iostream>
+
+using namespace std;
+
 File::File(string path, Arguments arguments) {
-    if (arguments.file_name) {
+    if (arguments.file_name)
         name = filesystem::path(path).filename().string();
-    }
 
     if (arguments.file_content) {
         ifstream file(path);
         if (file) {
             string line;
             string fullContent;
-            while (getline(file, line)) {
+            while (getline(file, line))
                 fullContent += line + "\n";
-            }
             content = fullContent;
         }
     }
@@ -25,8 +27,10 @@ int File::readFileName(string search, Arguments arguments) {
     int amount = 0;
     string curName = name.value();
 
+    if (search.length() > curName.length())
+        return 0;
 
-    for (int i = 0; i < curName.length() - search.length(); i++) {
+    for (int i = 0; i <= (int)(curName.length() - search.length()); i++) {
         if (search == curName.substr(i, search.length()))
             amount++;
     }
@@ -41,7 +45,10 @@ int File::readFileContent(string search, Arguments arguments) {
     int amount = 0;
     string curContent = content.value();
 
-    for (int i = 0; i < curContent.length() - search.length(); i++) {
+    if (search.length() > curContent.length())
+        return 0;
+
+    for (int i = 0; i <= (int)(curContent.length() - search.length()); i++) {
         if (search == curContent.substr(i, search.length()))
             amount++;
     }

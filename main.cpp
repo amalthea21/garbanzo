@@ -9,30 +9,7 @@
 
 using namespace std;
 
-/** @return Input search, dir from argv
-*/
-tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
-    string search = "", dir;
-
-    for (int i = 1; i < argc; i++) {
-        switch (argv[i][0]) {
-            case '@': // search input
-                for (int j = 1; argv[i][j] != '\0'; j++) { // Start at j=1 for @
-                    search += argv[i][j];
-                }
-                break;
-            case '-': // Flag
-                continue;
-            default: // Potential directory
-                if (strchr(argv[i], '.') || strchr(argv[i], '/')) {
-                    dir = argv[i];
-                }
-                break;
-        }
-    }
-    return make_tuple(search, dir);
-}
-
+#pragma region Menus
 void printHelp() {
     cout << "Usage: @[SEARCH] [DIRECTORY, FILE] [OPTIONS] (Not in a specific order!)"
             "\n   or: [-h, --help]"
@@ -55,13 +32,32 @@ void printVersion() {
     cout << "Garbanzo 0.1"
     << endl;
 }
+#pragma endregion Menus
 
-/**
- *
- * @param search String to search
- * @param dir Directory to search in (can be a file)
- * @return
- */
+/** @return Input search, dir from argv
+*/
+tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
+    string search = "", dir;
+
+    for (int i = 1; i < argc; i++) {
+        switch (argv[i][0]) {
+            case '@':           // search input
+                for (int j = 1; argv[i][j] != '\0'; j++) { // Start at j=1 for @
+                    search += argv[i][j];
+                }
+                break;
+            case '-':           // Flag
+                continue;
+            default:            // Potential dir input
+                if (strchr(argv[i], '.') || strchr(argv[i], '/')) {
+                    dir = argv[i];
+                }
+                break;
+        }
+    }
+    return make_tuple(search, dir);
+}
+
 int workArguments(Arguments arguments, optional<string> search, optional<string> dir) {
     int amount = 0;
 
@@ -69,8 +65,10 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
         printHelp();
     } else if (arguments.version) {
         printVersion();
-    } else if (search && dir) {
-        amount = 1;
+    } else if (search.has_value() && dir.has_value()) {
+        File inputFile(dir.value(), arguments);
+        amount += inputFile.readFileContent(search.value(), arguments);
+        amount += inputFile.readFileName(search.value(), arguments);
     }
 
     return amount;
@@ -81,13 +79,6 @@ int main(int argc, char* argv[]) {
     auto [search, dir] = getInput(argc, argv);
 
     int amount = workArguments(arguments, search, dir);
-
-    File testFile("../Testing/ninja.txt", arguments);
-
-    if (search.has_value()) {
-        amount += testFile.readFileContent(search.value(), arguments);
-        amount += testFile.readFileName(search.value(), arguments);
-    }
 
     cout << "Amount: " << amount << endl;
 
