@@ -5,7 +5,7 @@
 using namespace std;
 
 int TaskPooler::findThreadAmount(std::vector<File> tasks) {
-    unsigned int hw_threads = std::thread::hardware_concurrency();
+    unsigned int hw_threads = thread::hardware_concurrency();
 
     if (hw_threads == 0) {
         hw_threads = 4;
@@ -19,11 +19,11 @@ int TaskPooler::findThreadAmount(std::vector<File> tasks) {
     }
 
     const unsigned int MAX_THREADS = 32;
-    return std::min(optimal_threads, MAX_THREADS);
+    return min(optimal_threads, MAX_THREADS);
 }
 
-std::vector<std::vector<File>> TaskPooler::poolTasks(const std::vector<File>& tasks, int amount) {
-    std::vector<std::vector<File>> pooledTasks;
+vector<vector<File>> TaskPooler::poolTasks(const vector<File>& tasks, int amount) {
+    vector<vector<File>> pooledTasks;
 
     if (tasks.empty() || amount <= 0) {
         return pooledTasks;
@@ -48,4 +48,34 @@ std::vector<std::vector<File>> TaskPooler::poolTasks(const std::vector<File>& ta
     }
 
     return pooledTasks;
+}
+
+int TaskPooler::getTotalFindings(Arguments arguments, const string& search) {
+    int totalAmount = 0;
+    vector<thread> threads;
+
+    auto processFileVector = [&](const vector<File>& files) {
+        int localAmount = 0;
+
+        for (const auto& file : files) {
+            File& mutableFile = const_cast<File&>(file);
+            localAmount += mutableFile.readFileContent(search, arguments);
+            localAmount += mutableFile.readFileName(search, arguments);
+        }
+
+        lock_guard<mutex> lock(amountMutex);
+        totalAmount += localAmount;
+    };
+
+    for (const auto& fileVector : pooledTasks) {
+        threads.emplace_back(processFileVector, ref(fileVector));
+    }
+
+    for (auto& thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+
+    return totalAmount;
 }
