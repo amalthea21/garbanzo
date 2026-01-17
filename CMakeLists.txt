@@ -7,4 +7,6 @@ add_executable(garbanzo main.cpp
         src/Arguments.cpp
         include/Arguments.h
         src/File.cpp
-        include/File.h)
+        include/File.h
+        src/Extensions.cpp
+        include/Extensions.h)

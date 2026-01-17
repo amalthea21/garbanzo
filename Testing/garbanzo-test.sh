@@ -33,8 +33,9 @@ for ((i = 0; i < max_combinations; i++)); do
 
   for ((iter = 0; iter < ITERATIONS; iter++)); do
     start=$(date +%s%6N)
-    ../cmake-build-debug/garbanzo$cmd_args > /dev/null 2>&1
+    ../cmake-build-debug/garbanzo @ninja ../Testing/$cmd_args > /dev/null 2>&1
     end=$(date +%s%6N)
+
     duration=$((end - start))
     total_duration=$((total_duration + duration))
   done

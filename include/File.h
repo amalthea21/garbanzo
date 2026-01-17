@@ -13,6 +13,7 @@ public:
     string path;
     optional<string> name;
     optional<string> content;
+    optional<string> extension;
 
     File(string path, Arguments arguments);
 

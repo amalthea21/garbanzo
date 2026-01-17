@@ -3,17 +3,31 @@
 using namespace std;
 
 File::File(string path, Arguments arguments) {
-    if (arguments.file_name)
+    if (arguments.file_name) {
         name = filesystem::path(path).filename().string();
+
+        if (!arguments.case_sensitive) {
+            std::transform(name.value().begin(), name.value().end(),
+                           name.value().begin(),
+                           [](unsigned char c){ return std::tolower(c); });
+        }
+    }
 
     if (arguments.file_content) {
         ifstream file(path);
+
         if (file) {
             string line;
             string fullContent;
             while (getline(file, line))
                 fullContent += line + "\n";
             content = fullContent;
+        }
+
+        if (!arguments.case_sensitive) {
+            std::transform(content.value().begin(), content.value().end(),
+                           content.value().begin(),
+                           [](unsigned char c){ return std::tolower(c); });
         }
     }
 }

@@ -18,15 +18,32 @@ void printHelp() {
             "\nSearch for a string within files in a directory"
             "\n"
             "\nArguments:"
-            "\n-h      --help               Display help message (this!)"
-            "\n-v      --version            Display version message"
-            "\n-h      --recursion          Search recursively through subdirectories"
-            "\n-c      --no-file-content    Doesn't read file content"
-            "\n-n      --no-file-name       Doesn't read file names"
+            "\n-h      --help                Display help message (this!)"
+            "\n-v      --version             Display version message"
+            "\n-h      --recursion           Search recursively through subdirectories"
+            "\n-c      --no-file-content     Doesn't read file content"
+            "\n-n      --no-file-name        Doesn't read file names"
+            "\n-i      --ignore-case         Disable case-sensitive search"
+            "\n-e      --extension-sensitive Enable extension sensitive reading. More help with --extension-help"
             "\n"
-            "\nExample Usage: ./garbanzo @ninja /../Testing/ --recursion"
+            "\nExample Usage: ./garbanzo @ninja ../Testing/ --recursion"
             "\n               ./garbanzo --help"
             "\n               ./garbanzo --recursion @ninja ninja.txt"
+    << endl;
+}
+
+void printExtensionHelp() {
+    cout << "Usage: --extension-sensitive [MODE] [EXTENSIONS]"
+            "\n   or: -e [MODE] [EXTENSIONS]"
+            "\n"
+            "\nMode: E: ignores given extensions"
+            "\n      I: only reads given extensions"
+            "\n"
+            "\nExtension Syntax: Seperated by ','. Space isnt needed"
+            "\nExample:          .sh, .cpp,.txt"
+            "\n"
+            "\nExample Usage: ./garbanzo @ninja ../Testing/ --extension-sensitive E .sh     Ignores shell files, only"
+            "                                                                               reads other files"
     << endl;
 }
 
@@ -101,6 +118,12 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
         printVersion();
     } else if (search.has_value() && dir.has_value()) {
         auto filePaths = collectFilePaths(dir.value(), arguments);
+
+        if (!arguments.case_sensitive) {
+            std::transform(search.value().begin(), search.value().end(),
+                           search.value().begin(),
+                           [](unsigned char c){ return std::tolower(c); });
+        }
 
         for (int i = 0; i < filePaths.size(); i++) {
             File currentFile(filePaths[i], arguments);
