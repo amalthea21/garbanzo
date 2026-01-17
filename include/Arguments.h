@@ -17,4 +17,5 @@ public:
     Extensions extensions;
 
     Arguments(int argc, char* argv[]);
+    void parseExtensionArguments(int& i, int argc, char* argv[]);
 };

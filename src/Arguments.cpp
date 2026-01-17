@@ -4,6 +4,20 @@
 
 using namespace std;
 
+void Arguments::parseExtensionArguments(int& i, int argc, char* argv[]) {
+    extensions.extension_sensitive = true;
+
+    if (i + 1 < argc && argv[i + 1][0] != '-') {
+        string extArgs = argv[++i];
+
+        while (i + 1 < argc && argv[i + 1][0] != '-' && argv[i + 1][0] != '@') {
+            extArgs += " " + string(argv[++i]);
+        }
+
+        extensions.readExtensions(extArgs);
+    }
+}
+
 Arguments::Arguments(int argc, char *argv[]) {
     if (argc > 1) {
         unordered_map<string, int> optionMap = {
@@ -28,21 +42,7 @@ Arguments::Arguments(int argc, char *argv[]) {
                     case 4: file_content = false; break;
                     case 5: file_name = false; break;
                     case 6: case_sensitive = false; break;
-                    case 7: extensions.extension_sensitive = true;
-                        if (i + 1 < argc) {
-                            string extArgs = "";
-                            if (i + 1 < argc && argv[i + 1][0] != '-') {
-                                extArgs += argv[i + 1];
-                                i++;
-                                while (i + 1 < argc && argv[i + 1][0] != '-' && argv[i + 1][0] != '@') {
-                                    extArgs += " " + string(argv[i + 1]);
-                                    i++;
-                                }
-
-                                extensions.readExtensions(extArgs);
-                            }
-                        }
-                        break;
+                    case 7: parseExtensionArguments(i, argc, argv);break;
                     case 8: extensions.extension_help = true; break;
                 }
             }
