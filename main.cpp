@@ -65,17 +65,28 @@ vector<string> collectFilePaths(string dir, Arguments arguments) {
         }
 
         if (filesystem::is_regular_file(fsPath)) {
-            filePaths.push_back(dir);
+            string ext = arguments.extensions.extractExtension(fsPath.string());
+            if (arguments.extensions.isLegalExtension(ext)) {
+                filePaths.push_back(dir);
+            }
         } else if (filesystem::is_directory(fsPath)) {
             if (arguments.recursion) {
                 for (const auto& entry : filesystem::recursive_directory_iterator(fsPath)) {
-                    if (entry.is_regular_file())
-                        filePaths.push_back(entry.path().string());
+                    if (entry.is_regular_file()) {
+                        string ext = arguments.extensions.extractExtension(entry.path().string());
+                        if (arguments.extensions.isLegalExtension(ext)) {
+                            filePaths.push_back(entry.path().string());
+                        }
+                    }
                 }
             } else {
                 for (const auto& entry : filesystem::directory_iterator(fsPath)) {
-                    if (entry.is_regular_file())
-                        filePaths.push_back(entry.path().string());
+                    if (entry.is_regular_file()) {
+                        string ext = arguments.extensions.extractExtension(entry.path().string());
+                        if (arguments.extensions.isLegalExtension(ext)) {
+                            filePaths.push_back(entry.path().string());
+                        }
+                    }
                 }
             }
         }
@@ -100,9 +111,10 @@ tuple<optional<string>, optional<string>> splitInput(int argc, char* argv[]) {
             case '-':           // Flag
                 continue;
             default:            // Potential dir input
-                if (strchr(argv[i], '.') || strchr(argv[i], '/')) {
+                if ((strchr(argv[i], '/') != nullptr) ||
+                    (argv[i][0] == '.' && argv[i][1] == '.')) {
                     dir = argv[i];
-                }
+                    }
                 break;
         }
     }
@@ -147,10 +159,6 @@ int main(int argc, char* argv[]) {
     int amount = workArguments(arguments, search, dir);
 
     cout << amount << endl;
-
-    for (int i = 0; i < arguments.extensions.extensions.size(); i++) {
-        cout << arguments.extensions.extensions[i] << endl;
-    }
 
     exit(amount);
 }

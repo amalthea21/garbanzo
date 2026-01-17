@@ -4,12 +4,7 @@ using namespace std;
 
 File::File(string path, Arguments arguments) {
     this->path = path;
-
     extension = arguments.extensions.extractExtension(path);
-
-    if (!arguments.extensions.isLegalExtension(extension.value_or(""))) {
-        return;
-    }
 
     if (arguments.file_name) {
         name = filesystem::path(path).filename().string();
@@ -41,9 +36,6 @@ File::File(string path, Arguments arguments) {
 }
 
 int File::readFileName(string search, Arguments arguments) {
-    if (!arguments.extensions.isLegalExtension(extension.value_or("")))
-        return 0;
-
     if (!name.has_value() || !arguments.file_name)
         return 0;
 
@@ -62,9 +54,6 @@ int File::readFileName(string search, Arguments arguments) {
 }
 
 int File::readFileContent(string search, Arguments arguments) {
-    if (!arguments.extensions.isLegalExtension(extension.value_or("")))
-        return 0;
-
     if (!content.has_value() || !arguments.file_content)
         return 0;
 
