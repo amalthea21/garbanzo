@@ -143,12 +143,24 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
                            [](unsigned char c){ return std::tolower(c); });
         }
 
-        for (int i = 0; i < filePaths.size(); i++) {
-            File currentFile(filePaths[i], arguments);
+        TaskPooler taskPooler;
+        vector<File> fileVector;
 
-            amount += currentFile.readFileContent(search.value(), arguments);
-            amount += currentFile.readFileName(search.value(), arguments);
+        for (size_t i = 0; i < filePaths.size(); i++) {
+            File currentFile(filePaths[i], arguments);
+            fileVector.push_back(currentFile);
+
+            if (fileVector.size() >= 10 || i == filePaths.size() - 1) {
+                taskPooler.addTaskPool(fileVector);
+                fileVector.clear();
+            }
         }
+
+        if (!fileVector.empty()) {
+            taskPooler.addTaskPool(fileVector);
+        }
+
+        amount = taskPooler.getTotalFindings(arguments, search.value());
     }
 
     return amount;
