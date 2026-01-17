@@ -1,22 +1,22 @@
+#pragma once
+
 #include <string>
 #include <optional>
 #include <filesystem>
-#include <fstream>
 
 #include "Arguments.h"
-#pragma once
 
-using namespace std;
+
 
 class File {
 public:
-    string path;
-    optional<string> name;
-    optional<string> content;
-    optional<string> extension;
+    std::string path;
+    std::optional<std::string> name;
+    std::optional<std::string> content;
+    std::optional<std::string> extension;
 
-    File(string path, Arguments arguments);
 
-    int readFileName(string search, Arguments arguments);
-    int readFileContent(string search, Arguments arguments);
+    File(std::string path, Arguments arguments);
+    int readFileName(std::string search, Arguments arguments);
+    int readFileContent(std::string search, Arguments arguments);
 };

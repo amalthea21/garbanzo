@@ -1,9 +1,6 @@
-#include <string>
-#include <vector>
+#pragma once
 
 #include "Extensions.h"
-
-#pragma once
 
 class Arguments {
 public:
@@ -15,6 +12,7 @@ public:
     bool case_sensitive = true;
 
     Extensions extensions;
+
 
     Arguments(int argc, char* argv[]);
     void parseExtensionArguments(int& i, int argc, char* argv[]);

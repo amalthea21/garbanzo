@@ -1,4 +1,7 @@
+#include <fstream>
+
 #include "../include/File.h"
+
 
 using namespace std;
 
@@ -45,7 +48,7 @@ int File::readFileName(string search, Arguments arguments) {
     if (search.length() > curName.length())
         return 0;
 
-    for (int i = 0; i <= (int)(curName.length() - search.length()); i++) {
+    for (int i = 0; i <= static_cast<int>(curName.length() - search.length()); i++) {
         if (search == curName.substr(i, search.length()))
             amount++;
     }

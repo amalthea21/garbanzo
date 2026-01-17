@@ -1,6 +1,7 @@
-#include "../include/Arguments.h"
 #include <string>
 #include <unordered_map>
+
+#include "../include/Arguments.h"
 
 using namespace std;
 
