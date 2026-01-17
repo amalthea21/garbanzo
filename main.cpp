@@ -3,12 +3,14 @@
 #include <optional>
 #include <ostream>
 #include <string>
+#include <vector>
+#include <filesystem>
 
 #include "include/Arguments.h"
 #include "include/File.h"
 
 using namespace std;
-2
+
 #pragma region Menus
 void printHelp() {
     cout << "Usage: @[SEARCH] [DIRECTORY, FILE] [OPTIONS] (Not in a specific order!)"
@@ -34,7 +36,41 @@ void printVersion() {
 }
 #pragma endregion Menus
 
-tuple<optional<string>, optional<string>> getInput(int argc, char* argv[]) {
+vector<string> collectFilePaths(string dir, Arguments arguments) {
+    vector<string> filePaths;
+
+    try {
+        filesystem::path fsPath(dir);
+
+        if (!filesystem::exists(fsPath)) {
+            cerr << "Filesystem error: Path does not exist" << endl;
+            return filePaths;
+        }
+
+        if (filesystem::is_regular_file(fsPath)) {
+            filePaths.push_back(dir);
+        } else if (filesystem::is_directory(fsPath)) {
+            if (arguments.recursion) {
+                for (const auto& entry : filesystem::recursive_directory_iterator(fsPath)) {
+                    if (entry.is_regular_file())
+                        filePaths.push_back(entry.path().string());
+                }
+            } else {
+                for (const auto& entry : filesystem::directory_iterator(fsPath)) {
+                    if (entry.is_regular_file())
+                        filePaths.push_back(entry.path().string());
+                }
+            }
+        }
+
+    } catch (const filesystem::filesystem_error& e) {
+        cerr << "Filesystem error: " << e.what() << endl;
+    }
+
+    return filePaths;
+}
+
+tuple<optional<string>, optional<string>> splitInput(int argc, char* argv[]) {
     string search = "", dir;
 
     for (int i = 1; i < argc; i++) {
@@ -64,9 +100,14 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
     } else if (arguments.version) {
         printVersion();
     } else if (search.has_value() && dir.has_value()) {
-        File inputFile(dir.value(), arguments);
-        amount += inputFile.readFileContent(search.value(), arguments);
-        amount += inputFile.readFileName(search.value(), arguments);
+        auto filePaths = collectFilePaths(dir.value(), arguments);
+
+        for (int i = 0; i < filePaths.size(); i++) {
+            File currentFile(filePaths[i], arguments);
+
+            amount += currentFile.readFileContent(search.value(), arguments);
+            amount += currentFile.readFileName(search.value(), arguments);
+        }
     }
 
     return amount;
@@ -74,8 +115,10 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
 
 int main(int argc, char* argv[]) {
     Arguments arguments(argc, argv);
-    auto [search, dir] = getInput(argc, argv);
+    auto [search, dir] = splitInput(argc, argv);
     int amount = workArguments(arguments, search, dir);
-    cout << "Amount: " << amount << endl;
+
+    cout << amount << endl;
+
     exit(amount);
 }

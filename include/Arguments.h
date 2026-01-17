@@ -1,7 +1,5 @@
 #pragma once
 
-/** @name Stores given Arguments
- */
 class Arguments {
 public:
     bool help = false;

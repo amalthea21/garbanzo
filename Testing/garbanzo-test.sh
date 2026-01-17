@@ -41,6 +41,6 @@ for ((i = 0; i < max_combinations; i++)); do
 
   avg_duration=$((total_duration / ITERATIONS))
 
-  echo "Combination ${i}: ${avg_duration}μs (avg of ${ITERATIONS}) | ${cmd_args}"
+  echo "Combination ${i}: ${avg_duration}μs |${cmd_args}"
 
 done;
