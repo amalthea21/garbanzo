@@ -174,53 +174,66 @@ int workArguments(Arguments arguments, optional<string> search, optional<string>
     return amount;
 }
 
+int processPipedInput(Arguments arguments, string searchStr) {
+    string line;
+    vector<string> pipedPaths;
+
+    // Read all piped file paths
+    while (getline(cin, line)) {
+        if (!line.empty()) {
+            // Trim whitespace
+            line.erase(0, line.find_first_not_of(" \t\r\n"));
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
+
+            // Verify file exists before adding
+            if (filesystem::exists(line) && filesystem::is_regular_file(line)) {
+                pipedPaths.push_back(line);
+            } else {
+                cerr << "Warning: Skipping non-existent or non-file path: " << line << endl;
+            }
+        }
+    }
+
+    if (pipedPaths.empty()) {
+        return 0;
+    }
+
+    if (!arguments.case_sensitive) {
+        std::transform(searchStr.begin(), searchStr.end(),
+                       searchStr.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+    }
+
+    TaskPooler taskPooler;
+    vector<File> fileVector;
+
+    for (size_t i = 0; i < pipedPaths.size(); i++) {
+        string ext = arguments.extensions.extractExtension(pipedPaths[i]);
+        if (arguments.extensions.isLegalExtension(ext)) {
+            File currentFile(pipedPaths[i], arguments);
+            fileVector.push_back(currentFile);
+
+            if (fileVector.size() >= 10 || i == pipedPaths.size() - 1) {
+                taskPooler.addTaskPool(fileVector);
+                fileVector.clear();
+            }
+        }
+    }
+
+    if (!fileVector.empty()) {
+        taskPooler.addTaskPool(fileVector);
+    }
+
+    return taskPooler.getTotalFindings(arguments, searchStr);
+}
+
 int main(int argc, char* argv[]) {
     Arguments arguments(argc, argv);
     auto [search, dir] = splitInput(argc, argv);
     int amount = 0;
 
-    // Check if we have piped input and no directory specified
     if (isStdInput() && !dir.has_value() && search.has_value()) {
-        string line;
-        vector<string> pipedPaths;
-
-        // Read all piped file paths
-        while (getline(cin, line)) {
-            if (!line.empty()) {
-                pipedPaths.push_back(line);
-            }
-        }
-
-        if (!pipedPaths.empty()) {
-            string searchStr = search.value();
-            if (!arguments.case_sensitive) {
-                std::transform(searchStr.begin(), searchStr.end(),
-                               searchStr.begin(),
-                               [](unsigned char c){ return std::tolower(c); });
-            }
-
-            TaskPooler taskPooler;
-            vector<File> fileVector;
-
-            for (size_t i = 0; i < pipedPaths.size(); i++) {
-                string ext = arguments.extensions.extractExtension(pipedPaths[i]);
-                if (arguments.extensions.isLegalExtension(ext)) {
-                    File currentFile(pipedPaths[i], arguments);
-                    fileVector.push_back(currentFile);
-
-                    if (fileVector.size() >= 10 || i == pipedPaths.size() - 1) {
-                        taskPooler.addTaskPool(fileVector);
-                        fileVector.clear();
-                    }
-                }
-            }
-
-            if (!fileVector.empty()) {
-                taskPooler.addTaskPool(fileVector);
-            }
-
-            amount = taskPooler.getTotalFindings(arguments, searchStr);
-        }
+        amount = processPipedInput(arguments, search.value());
     } else {
         amount = workArguments(arguments, search, dir);
     }
